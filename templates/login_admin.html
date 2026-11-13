@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acceso Administrador - JD TECH</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #050b18; color: #ffffff; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .card { background-color: #0b192c; border: 1px solid #1e3a8a; border-radius: 8px; padding: 30px; width: 100%; max-width: 400px; box-shadow: 0 4px 15px rgba(0, 180, 216, 0.2); text-align: center; }
+        h2 { color: #00b4d8; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; color: #90e0ef; }
+        input { width: 100%; padding: 10px; background: #050b18; border: 1px solid #1e3a8a; color: white; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #00b4d8; color: #050b18; padding: 12px; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; margin-top: 10px; }
+        button:hover { background-color: #90e0ef; }
+        .alert { padding: 10px; background-color: #ef4444; color: white; margin-bottom: 15px; border-radius: 4px; font-size: 0.9em; }
+        .back { margin-top: 15px; display: block; color: #00b4d8; text-decoration: none; font-size: 0.9em; }
+        .back:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Acceso Restringido</h2>
+        <p style="color: #90e0ef; font-size: 0.9em; margin-bottom: 20px;">JD TECH - Panel de Gestión</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="/login-admin" method="POST">
+            <div class="form-group">
+                <label>Contraseña de Administrador:</label>
+                <input type="password" name="password" required placeholder="Ingrese su clave">
+            </div>
+            <button type="submit">Ingresar al Panel</button>
+        </form>
+        <a href="/" class="back">← Volver al sitio principal</a>
+    </div>
+</body>
+</html>

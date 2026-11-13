@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estado de Reparación - JD TECH</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #050b18; color: #ffffff; margin: 0; padding: 0; }
+        header { background: linear-gradient(135deg, #0b1c3d, #023e8a); padding: 30px; text-align: center; border-bottom: 3px solid #00b4d8; }
+        h1 { margin: 0; color: #90e0ef; }
+        .container { max-width: 800px; margin: 30px auto; padding: 20px; }
+        .card { background-color: #0b192c; border: 1px solid #1e3a8a; border-radius: 8px; padding: 25px; margin-bottom: 25px; }
+        .nav-links { text-align: center; margin-bottom: 20px; }
+        .nav-links a { color: #00b4d8; margin: 0 15px; text-decoration: none; font-weight: bold; }
+        input { width: 100%; padding: 10px; background: #050b18; border: 1px solid #1e3a8a; color: white; border-radius: 4px; margin-bottom: 15px; }
+        button { background-color: #00b4d8; color: #050b18; padding: 10px 20px; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; }
+        .resultado-box { margin-top: 20px; background: #112240; padding: 15px; border-left: 5px solid #10b981; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>JD TECH - Consulta de Estado</h1>
+    </header>
+    <div class="container">
+        <div class="nav-links">
+            <a href="/">← Volver al Inicio</a>
+        </div>
+        <div class="card">
+            <h2>Ingrese su número de Orden o Nombre</h2>
+            <form method="POST">
+                <input type="text" name="busqueda" required placeholder="Ej. 1 ó Carlos Pérez" value="{{ busqueda if busqueda else '' }}">
+                <button type="submit">Consultar Estado</button>
+            </form>
+
+            {% if resultado %}
+                <div class="resultado-box">
+                    <h3>Detalles de la Orden #{{ resultado.id }}</h3>
+                    <p><strong>Cliente:</strong> {{ resultado.cliente }}</p>
+                    <p><strong>Dispositivo:</strong> {{ resultado.dispositivo }}</p>
+                    <p><strong>Servicio:</strong> {{ resultado.falla }}</p>
+                    <p><strong>Estado Actual:</strong> <span style="color: #38bdf8; font-weight: bold;">{{ resultado.estado }}</span></p>
+                </div>
+            {% elif request.method == 'POST' %}
+                <p style="color: #f87171; margin-top: 15px;">No se encontró ningún equipo asociado a esos datos.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
