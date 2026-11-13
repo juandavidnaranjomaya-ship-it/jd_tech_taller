@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador - JD TECH</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function verificarFallaAdmin(select) {
+            const inputOtro = document.getElementById('problema_otro_admin');
+            if (select.value === 'Otra') {
+                inputOtro.classList.remove('hidden');
+            } else {
+                inputOtro.classList.add('hidden');
+                inputOtro.value = '';
+            }
+        }
+
+        function cargarEnFormulario(id, cliente, telefono, equipo, problema, costo, precio) {
+            document.getElementById('orden_id').value = id;
+            document.getElementById('cliente').value = cliente;
+            document.getElementById('telefono').value = telefono;
+            document.getElementById('equipo').value = equipo;
+            
+            const select = document.getElementById('problema_select_admin');
+            const inputOtro = document.getElementById('problema_otro_admin');
+            
+            let encontrada = false;
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === problema) {
+                    select.selectedIndex = i;
+                    encontrada = true;
+                    inputOtro.classList.add('hidden');
+                    break;
+                }
+            }
+            if (!encontrada) {
+                select.value = 'Otra';
+                inputOtro.classList.remove('hidden');
+                inputOtro.value = problema;
+            }
+
+            document.getElementById('costo').value = costo;
+            document.getElementById('precio').value = precio;
+            
+            const btn = document.getElementById('btn-submit');
+            btn.textContent = "Guardar Cambios / Costos";
+            btn.classList.remove('bg-cyan-500', 'hover:bg-cyan-400');
+            btn.classList.add('bg-amber-500', 'hover:bg-amber-400');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('orden_id').value = '';
+            document.getElementById('cliente').value = '';
+            document.getElementById('telefono').value = '';
+            document.getElementById('equipo').value = '';
+            document.getElementById('costo').value = '';
+            document.getElementById('precio').value = '';
+            const btn = document.getElementById('btn-submit');
+            btn.textContent = "Agregar Nueva Orden";
+            btn.classList.remove('bg-amber-500', 'hover:bg-amber-400');
+            btn.classList.add('bg-cyan-500', 'hover:bg-cyan-400');
+        }
+
+        // Función para recopilar y enviar todos los cambios en lote
+        function guardarTodos() {
+            const container = document.getElementById('inputs-masivos');
+            container.innerHTML = '';
+            
+            const selects = document.querySelectorAll('select[name="nuevo_estado"]');
+            selects.forEach(select => {
+                const form = select.closest('form');
+                const ordenIdInput = form.querySelector('input[name="orden_id"]');
+                if (ordenIdInput) {
+                    const ordenId = ordenIdInput.value;
+                    const estadoVal = select.value;
+                    
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'estado_' + ordenId;
+                    input.value = estadoVal;
+                    container.appendChild(input);
+                }
+            });
+            
+            document.getElementById('form-masivo-todos').submit();
+        }
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- Formulario oculto para guardar todos los cambios en lote -->
+    <form id="form-masivo-todos" method="POST" class="hidden">
+        <input type="hidden" name="accion" value="actualizar_masivo">
+        <div id="inputs-masivos"></div>
+    </form>
+
+    <!-- Navbar -->
+    <nav class="bg-slate-800 border-b border-slate-700 py-4 px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <span class="text-xl font-bold tracking-wider text-cyan-400">JD TECH</span>
+                <span class="bg-cyan-500/10 text-cyan-400 text-xs px-2.5 py-1 rounded-full border border-cyan-500/20 font-medium">Panel Admin</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="/admin/exportar-excel" class="text-sm bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-lg transition shadow-md">
+                    📊 Descargar Excel (Con Ganancias)
+                </a>
+                <a href="/" class="text-sm bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg transition text-slate-200">🏠 Volver al Inicio</a>
+                <a href="/logout" class="text-sm bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 px-4 py-2 rounded-lg transition">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow space-y-10">
+
+        <!-- Sección 1: Formulario Superior -->
+        <section class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-cyan-400 flex items-center gap-2">
+                    <span>➕</span> Registrar / Editar Orden y Costos
+                </h2>
+                <button type="button" onclick="limpiarFormulario()" class="text-xs text-slate-400 hover:text-slate-200 underline">Limpiar formulario (Nuevo)</button>
+            </div>
+            
+            <form method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <input type="hidden" name="accion" value="guardar">
+                <input type="hidden" id="orden_id" name="orden_id" value="">
+                
+                <input type="text" id="cliente" name="cliente" placeholder="Nombre y Apellidos" required class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
+                <input type="text" id="telefono" name="telefono" placeholder="Teléfono / WhatsApp" required class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
+                <input type="text" id="equipo" name="equipo" placeholder="Marca y Modelo (Ej. iPhone 12)" required class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
+                
+                <select id="problema_select_admin" name="problema_select" onchange="verificarFallaAdmin(this)" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
+                    <option value="Cambio de pantalla">Cambio de pantalla</option>
+                    <option value="Pin de carga">Pin de carga</option>
+                    <option value="Batería">Cambio de batería</option>
+                    <option value="Software / Cuenta">Software / Cuenta</option>
+                    <option value="Equipo mojado">Equipo mojado</option>
+                    <option value="Otra">Otra (Escribir falla...)</option>
+                </select>
+
+                <input type="text" id="problema_otro_admin" name="problema_otro" placeholder="Especifica la otra falla..." class="hidden sm:col-span-2 lg:col-span-4 bg-slate-900 border border-cyan-500/50 rounded-xl px-4 py-2.5 text-sm text-slate-100">
+
+                <input type="number" id="costo" name="costo" placeholder="Costo repuesto ($) (Opcional)" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
+                <input type="number" id="precio" name="precio" placeholder="Precio cliente ($) (Opcional)" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
+                
+                <div class="sm:col-span-2 lg:col-span-2 flex justify-end">
+                    <button type="submit" id="btn-submit" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl transition shadow-lg text-sm">
+                        Agregar Nueva Orden
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Sección 2: Órdenes Activas en Taller -->
+        <section class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                <h2 class="text-lg font-bold text-slate-100">📋 Órdenes Activas en Taller</h2>
+                
+                <div class="flex flex-wrap items-center gap-4">
+                    <!-- Botón Maestro para Guardar Todos los Cambios Individuales -->
+                    <button type="button" onclick="guardarTodos()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1.5">
+                        💾 Actualizar Todos (Guardar cambios)
+                    </button>
+
+                    <!-- Desplegable de Filtro -->
+                    <form method="GET" action="/admin" class="flex items-center gap-2">
+                        <label class="text-xs text-slate-400">Filtrar:</label>
+                        <select name="filtro_estado" onchange="this.form.submit()" class="bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-200">
+                            <option value="Todos" {% if filtro_estado == 'Todos' %}selected{% endif %}>Todos</option>
+                            <option value="Ingresado" {% if filtro_estado == 'Ingresado' %}selected{% endif %}>Ingresado</option>
+                            <option value="En Revisión" {% if filtro_estado == 'En Revisión' %}selected{% endif %}>En Revisión</option>
+                            <option value="Reparado" {% if filtro_estado == 'Reparado' %}selected{% endif %}>Reparado</option>
+                            <option value="Entregado" {% if filtro_estado == 'Entregado' %}selected{% endif %}>Entregado</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-900 text-xs uppercase text-slate-400 border-b border-slate-700">
+                        <tr>
+                            <th class="py-3 px-4">Cliente / Tel</th>
+                            <th class="py-3 px-4">Equipo / Falla</th>
+                            <th class="py-3 px-4">Fechas</th>
+                            <th class="py-3 px-4">Finanzas (Solo Admin)</th>
+                            <th class="py-3 px-4">Estado & Garantía</th>
+                            <th class="py-3 px-4 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/60">
+                        {% for o in ordenes %}
+                        <tr class="hover:bg-slate-750 transition">
+                            <td class="py-4 px-4">
+                                <div class="font-bold text-slate-100">{{ o.cliente }}</div>
+                                <div class="text-xs text-cyan-400">{{ o.telefono }}</div>
+                            </td>
+                            <td class="py-4 px-4">
+                                <div class="font-medium text-slate-200">{{ o.equipo }}</div>
+                                <div class="text-xs text-slate-400">{{ o.problema }}</div>
+                            </td>
+                            <td class="py-4 px-4 text-xs">
+                                <div><span class="text-slate-500">Ing:</span> {{ o.fecha_ingreso }}</div>
+                                <div><span class="text-slate-500">Rep:</span> {{ o.fecha_reparacion or 'Pendiente' }}</div>
+                            </td>
+                            <td class="py-4 px-4 text-xs">
+                                <div>Inv: <span class="text-rose-400">${{ "{:,}".format(o.costo) }}</span></div>
+                                <div>Cobro: <span class="text-emerald-400">${{ "{:,}".format(o.precio) }}</span></div>
+                                <div class="font-bold text-cyan-300">Ganancia: ${{ "{:,}".format(o.precio - o.costo) }}</div>
+                            </td>
+                            <td class="py-4 px-4">
+                                <span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full mb-1
+                                    {% if o.estado == 'Ingresado' %} bg-amber-500/20 text-amber-400
+                                    {% elif o.estado == 'En Revisión' %} bg-blue-500/20 text-blue-400
+                                    {% elif o.estado == 'Reparado' %} bg-emerald-500/20 text-emerald-400
+                                    {% else %} bg-slate-700 text-slate-300 {% endif %}">
+                                    {{ o.estado }}
+                                </span>
+                                {% if o.dias_restantes is not none and o.estado == 'Reparado' %}
+                                <div class="text-[10px] text-amber-300 font-medium">Garantía: {{ o.dias_restantes }} días izq.</div>
+                                {% endif %}
+                            </td>
+                            <td class="py-4 px-4 text-right flex items-center justify-end gap-2">
+                                <button type="button" onclick="cargarEnFormulario('{{ o.id }}', '{{ o.cliente }}', '{{ o.telefono }}', '{{ o.equipo }}', '{{ o.problema }}', '{{ o.costo }}', '{{ o.precio }}')" class="bg-slate-700 hover:bg-amber-500 hover:text-slate-950 text-xs font-medium px-2.5 py-1.5 rounded-lg transition">
+                                    ✏️ Cargar
+                                </button>
+
+                                <!-- Formulario individual por fila -->
+                                <form method="POST" class="inline-flex items-center gap-1.5">
+                                    <input type="hidden" name="accion" value="cambiar_estado">
+                                    <input type="hidden" name="orden_id" value="{{ o.id }}">
+                                    <select name="nuevo_estado" class="bg-slate-900 border border-slate-700 text-xs rounded-lg px-2 py-1.5 text-slate-200">
+                                        <option value="Ingresado" {% if o.estado == 'Ingresado' %}selected{% endif %}>Ingresado</option>
+                                        <option value="En Revisión" {% if o.estado == 'En Revisión' %}selected{% endif %}>En Revisión</option>
+                                        <option value="Reparado" {% if o.estado == 'Reparado' %}selected{% endif %}>Reparado</option>
+                                        <option value="Entregado" {% if o.estado == 'Entregado' %}selected{% endif %}>Entregado</option>
+                                    </select>
+                                    <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-lg transition">
+                                        Actualizar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-6 text-slate-500">No hay órdenes activas en este filtro.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-xs text-slate-500 border-t border-slate-800">
+        &copy; 2026 JD TECH - Panel Administrativo Seguro.
+    </footer>
+
+</body>
+</html>
