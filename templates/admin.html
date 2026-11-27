@@ -6,8 +6,20 @@
     <title>JD TECH - Panel Administrador</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        function cargarParaEditar(id, cliente, telefono, equipo, imei, problema, costo_rep, costo_total) {
-            document.getElementById('input_orden_id').value = id;
+        function verificarOtroAdmin(select) {
+            const inputOtro = document.getElementById('div_otro_admin');
+            if (select.value === 'Otro') {
+                inputOtro.classList.remove('hidden');
+                document.getElementById('problema_otro_admin').required = true;
+            } else {
+                inputOtro.classList.add('hidden');
+                document.getElementById('problema_otro_admin').required = false;
+            }
+        }
+
+        function cargarParaEditar(cedula, cliente, telefono, equipo, imei, problema, costo_rep, costo_total) {
+            document.getElementById('input_cedula_original').value = cedula;
+            document.getElementById('input_cedula').value = cedula;
             document.getElementById('input_cliente').value = cliente;
             document.getElementById('input_telefono').value = telefono;
             document.getElementById('input_equipo').value = equipo;
@@ -24,12 +36,20 @@
                     break;
                 }
             }
+            if (!encontrado) {
+                selectProblema.value = 'Otro';
+                verificarOtroAdmin(selectProblema);
+                document.getElementById('problema_otro_admin').value = problema;
+            } else {
+                document.getElementById('div_otro_admin').classList.add('hidden');
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function limpiarFormularioAdmin() {
-            document.getElementById('input_orden_id').value = '';
+            document.getElementById('input_cedula_original').value = '';
             document.getElementById('form_gestion').reset();
+            document.getElementById('div_otro_admin').classList.add('hidden');
         }
     </script>
 </head>
@@ -67,36 +87,43 @@
             </div>
 
             <form id="form_gestion" action="/crear-orden" method="POST" enctype="multipart/form-data" class="space-y-4">
-                <input type="hidden" name="orden_id" id="input_orden_id">
+                <input type="hidden" name="cedula_original" id="input_cedula_original">
                 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <input type="text" id="input_cliente" name="cliente" required placeholder="Nombre y Apellidos" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
+                    <input type="text" id="input_cedula" name="cedula" required placeholder="Numero de Cedula" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
                     <input type="text" id="input_telefono" name="telefono" required placeholder="Telefono / WhatsApp" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
                     <input type="text" id="input_equipo" name="equipo" required placeholder="Marca y Modelo (Ej. iPhone 12)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
-                    <select id="select_problema_admin" name="problema" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" id="input_imei" name="imei" placeholder="Numero IMEI (Garantia / Seguridad)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
+                    <select id="select_problema_admin" name="problema" onchange="verificarOtroAdmin(this)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
                         <option value="Cambio de pantalla">Cambio de pantalla</option>
                         <option value="Pin de carga">Pin de carga</option>
                         <option value="Cambio de bateria">Cambio de bateria</option>
                         <option value="Dano por agua">Dano por agua</option>
                         <option value="Diagnostico general">Diagnostico general</option>
-                        <option value="Otro motivo">Otro motivo</option>
+                        <option value="Otro">Otro (Especificar)</option>
                     </select>
+                    <input type="text" id="input_costo_rep" name="costo_rep" placeholder="Costo repuesto ($) (Inversion)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
+                    <input type="text" id="input_costo_total" name="costo_total" placeholder="Precio cliente ($) (Cobro)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" id="input_imei" name="imei" placeholder="Numero IMEI (Garantia / Seguridad)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
-                    <input type="text" id="input_costo_rep" name="costo_rep" placeholder="Costo repuesto ($) (Opcional)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
-                    <input type="text" id="input_costo_total" name="costo_total" placeholder="Precio cliente ($) (Opcional)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
-                    
-                    <div class="bg-[#0b0f19] border border-slate-800 px-3 py-2 rounded-xl flex items-center space-x-2">
-                        <span class="text-[11px] text-slate-400">Foto:</span>
+                <div id="div_otro_admin" class="hidden">
+                    <label class="block text-xs font-medium text-cyan-400 mb-1">Especifique la falla:</label>
+                    <input type="text" id="problema_otro_admin" name="problema_otro" placeholder="Describa el problema..." class="w-full px-4 py-2.5 bg-[#0b0f19] border border-cyan-500/50 rounded-xl text-xs text-white focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                    <div class="bg-[#0b0f19] border border-slate-800 px-3 py-2.5 rounded-xl flex items-center space-x-2">
+                        <span class="text-[11px] text-slate-400">Foto de recepcion:</span>
                         <input type="file" name="foto" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-cyan-400">
                     </div>
+                    <button type="submit" class="w-full py-3.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold rounded-xl shadow transition text-xs tracking-wider uppercase">
+                        Guardar / Agregar Orden
+                    </button>
                 </div>
-
-                <button type="submit" class="w-full py-3.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold rounded-xl shadow transition text-xs tracking-wider uppercase">
-                    Guardar / Agregar Orden
-                </button>
             </form>
         </div>
 
@@ -104,11 +131,9 @@
         <form action="/actualizar-masivo" method="POST" class="bg-[#111827] border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
             <div class="flex justify-between items-center">
                 <h3 class="text-base font-bold text-white">Ordenes Activas en Taller</h3>
-                <div class="flex items-center space-x-3">
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow transition">
-                        Actualizar Todos (Guardar cambios)
-                    </button>
-                </div>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow transition">
+                    Actualizar Todos (Guardar cambios)
+                </button>
             </div>
 
             <div class="overflow-x-auto">
@@ -128,8 +153,8 @@
                         <tr class="hover:bg-slate-800/30">
                             <td class="p-4 space-y-1">
                                 <div class="font-bold text-white">{{ o.cliente }}</div>
+                                <div class="text-slate-400">CC: {{ o.cedula }}</div>
                                 <div class="text-slate-400">Tel: {{ o.telefono }}</div>
-                                <div class="text-cyan-400 font-mono">ID: {{ o.id }}</div>
                             </td>
                             <td class="p-4 space-y-1">
                                 <div class="font-semibold text-slate-200">{{ o.equipo }}</div>
@@ -149,14 +174,19 @@
                                 </div>
                             </td>
                             <td class="p-4 space-y-1">
-                                <div class="text-slate-300">Inv: ${{ o.costo_rep }}</div>
-                                <div class="text-emerald-400 font-bold">Cob: ${{ o.costo_total }}</div>
+                                <!-- Inversion en color ambar/rojo suave -->
+                                <div class="text-amber-400 font-semibold">Inversion: ${{ o.costo_rep }}</div>
+                                <div class="text-emerald-400 font-bold">Cobro: ${{ o.costo_total }}</div>
                                 <div class="text-cyan-300 font-bold pt-0.5">
                                     Ganancia: ${{ "{:,}".format(o.ganancia) }}
                                 </div>
                             </td>
                             <td class="p-4 space-y-2">
-                                <select name="estado_{{ o.id }}" class="bg-[#0b0f19] border border-slate-800 px-3 py-1.5 rounded-lg text-cyan-300 font-semibold w-full">
+                                <select name="estado_{{ o.cedula }}" class="bg-[#0b0f19] border border-slate-800 px-3 py-1.5 rounded-lg font-semibold w-full
+                                    {% if o.estado == 'Recibido' %} text-blue-400
+                                    {% elif o.estado == 'En revision' %} text-amber-400
+                                    {% elif o.estado == 'Reparado' %} text-emerald-400
+                                    {% else %} text-purple-400 {% endif %}">
                                     <option value="Recibido" {% if o.estado == 'Recibido' %}selected{% endif %}>Recibido</option>
                                     <option value="En revision" {% if o.estado == 'En revision' %}selected{% endif %}>En revision</option>
                                     <option value="Reparado" {% if o.estado == 'Reparado' %}selected{% endif %}>Reparado</option>
@@ -169,10 +199,10 @@
                                 {% endif %}
                             </td>
                             <td class="p-4 text-center space-x-2">
-                                <button type="button" onclick="cargarParaEditar('{{ o.id }}', '{{ o.cliente }}', '{{ o.telefono }}', '{{ o.equipo }}', '{{ o.imei }}', '{{ o.problema }}', '{{ o.costo_rep }}', '{{ o.costo_total }}')" class="px-3 py-1.5 bg-indigo-950 hover:bg-indigo-900 text-indigo-300 rounded-lg font-semibold border border-indigo-900 transition">
+                                <button type="button" onclick="cargarParaEditar('{{ o.cedula }}', '{{ o.cliente }}', '{{ o.telefono }}', '{{ o.equipo }}', '{{ o.imei }}', '{{ o.problema }}', '{{ o.costo_rep }}', '{{ o.costo_total }}')" class="px-3 py-1.5 bg-indigo-950 hover:bg-indigo-900 text-indigo-300 rounded-lg font-semibold border border-indigo-900 transition">
                                     Editar
                                 </button>
-                                <button type="submit" formaction="/eliminar-orden/{{ o.id }}" class="px-3 py-1.5 bg-red-950 hover:bg-red-900 text-red-300 rounded-lg font-semibold border border-red-900 transition">
+                                <button type="submit" formaction="/eliminar-orden/{{ o.cedula }}" class="px-3 py-1.5 bg-red-950 hover:bg-red-900 text-red-300 rounded-lg font-semibold border border-red-900 transition">
                                     Eliminar
                                 </button>
                             </td>
