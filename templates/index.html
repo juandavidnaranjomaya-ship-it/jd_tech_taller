@@ -5,10 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JD TECH - Servicio Técnico Profesional</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function verificarOtro(select) {
+            const inputOtro = document.getElementById('div_otro');
+            if (select.value === 'Otro') {
+                inputOtro.classList.remove('hidden');
+                document.getElementById('problema_otro').required = true;
+            } else {
+                inputOtro.classList.add('hidden');
+                document.getElementById('problema_otro').required = false;
+            }
+        }
+    </script>
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col justify-between font-sans">
     
-    <!-- Barra Superior -->
     <header class="bg-[#111827] border-b border-slate-800 py-4 px-8 shadow-lg">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold tracking-wider text-white">JD TECH</h1>
@@ -19,10 +30,8 @@
         </div>
     </header>
 
-    <!-- Contenido Principal (Estilo idéntico a imagen de referencia) -->
     <main class="max-w-7xl mx-auto px-4 py-12 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        <!-- Columna Izquierda: Banner Promocional y Precios Referenciales -->
         <div class="lg:col-span-6 space-y-6">
             <div class="space-y-4">
                 <span class="text-xs font-semibold uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-md border border-cyan-500/20">Soporte Tecnico Profesional</span>
@@ -34,7 +43,6 @@
                 </p>
             </div>
 
-            <!-- Tarjetas de Referencia de Precios -->
             <div class="space-y-3 pt-4">
                 <div class="bg-[#111827] border border-slate-800 p-4 rounded-xl flex justify-between items-center shadow-md">
                     <div>
@@ -62,11 +70,8 @@
             </div>
         </div>
 
-        <!-- Columna Derecha: Formulario de Registro de Equipo -->
         <div class="lg:col-span-6 bg-[#111827] border border-slate-800 p-8 rounded-2xl shadow-2xl">
-            <div class="flex items-center space-x-2 mb-2">
-                <h3 class="text-lg font-bold text-white">Registra tu Equipo</h3>
-            </div>
+            <h3 class="text-lg font-bold text-white mb-1">Registra tu Equipo</h3>
             <p class="text-xs text-slate-400 mb-6">Completa los datos para generar tu orden de ingreso.</p>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -103,14 +108,21 @@
 
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-1.5">Motivo de Ingreso / Falla</label>
-                    <select name="problema" class="w-full px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-slate-100 text-sm">
+                    <select name="problema" id="select_problema" onchange="verificarOtro(this)" class="w-full px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-slate-100 text-sm">
                         <option value="Cambio de pantalla">Cambio de pantalla</option>
                         <option value="Pin de carga">Pin de carga</option>
                         <option value="Cambio de bateria">Cambio de bateria</option>
                         <option value="Dano por agua">Dano por agua</option>
                         <option value="Diagnostico general">Diagnostico general</option>
-                        <option value="Otro motivo">Otro motivo</option>
+                        <option value="Otro">Otro (Especificar)</option>
                     </select>
+                </div>
+
+                <div id="div_otro" class="hidden">
+                    <label class="block text-xs font-medium text-cyan-400 mb-1.5">Especifique la falla:</label>
+                    <input type="text" name="problema_otro" id="problema_otro" 
+                        class="w-full px-4 py-3 bg-[#0b0f19] border border-cyan-500/50 rounded-xl focus:outline-none focus:border-cyan-400 text-slate-100 text-sm"
+                        placeholder="Describa el problema...">
                 </div>
 
                 <!-- Tratamiento de Datos Personales conforme a la Ley -->
