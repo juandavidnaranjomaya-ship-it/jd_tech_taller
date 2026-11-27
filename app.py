@@ -1,5 +1,4 @@
 import os
-import random
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.utils import secure_filename
@@ -11,10 +10,10 @@ UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Base de datos simulada en memoria robusta
+# Base de datos simulada en memoria usando la cédula como clave principal
 ordenes_db = [
     {
-        "id": "ORD-501",
+        "cedula": "1015074219",
         "cliente": "Eliana Maya",
         "telefono": "313 5760462",
         "equipo": "Samsung A34",
@@ -43,10 +42,10 @@ def estado():
         busqueda = request.form.get('busqueda', '').strip().lower()
         ordenes = [
             o for o in ordenes_db 
-            if busqueda in o['telefono'].lower() or busqueda in o['cliente'].lower() or busqueda in o['id'].lower()
+            if busqueda in o['cedula'].lower() or busqueda in o['telefono'].lower() or busqueda in o['cliente'].lower()
         ]
         if not ordenes:
-            error = "No se encontro ninguna orden con ese numero de telefono, nombre o codigo."
+            error = "No se encontro ninguna orden con ese numero de cedula o telefono."
             
     return render_template('estado.html', ordenes=ordenes, error=error)
 
@@ -81,16 +80,8 @@ def admin_panel():
 @app.route('/crear-orden', methods=['POST'])
 def crear_orden():
     try:
-        orden_id = request.form.get('orden_id', '').strip()
-        
-        foto_filename = ""
-        if 'foto' in request.files:
-            file = request.files['foto']
-            if file and file.filename != '':
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                foto_filename = filename
-
+        cedula_original = request.form.get('cedula_original', '').strip()
+        cedula = request.form.get('cedula', '').strip()
         cliente = request.form.get('cliente', '').strip()
         telefono = request.form.get('telefono', '').strip()
         equipo = request.form.get('equipo', '').strip()
@@ -107,10 +98,19 @@ def crear_orden():
         costo_total = int(costo_total_str) if costo_total_str.isdigit() else 0
         ganancia = costo_total - costo_rep
 
-        # Si viene un ID existente, se actualiza la orden desde el panel superior (Autorrelleno/Edición)
-        if orden_id:
+        foto_filename = ""
+        if 'foto' in request.files:
+            file = request.files['foto']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                foto_filename = filename
+
+        # Si se esta editando una orden existente mediante la cedula original
+        if cedula_original:
             for o in ordenes_db:
-                if o['id'] == orden_id:
+                if o['cedula'] == cedula_original:
+                    o['cedula'] = cedula if cedula else o['cedula']
                     o['cliente'] = cliente
                     o['telefono'] = telefono
                     o['equipo'] = equipo
@@ -122,14 +122,17 @@ def crear_orden():
                     o['ganancia'] = ganancia
                     if foto_filename:
                         o['foto'] = foto_filename
-            flash(f"Orden {orden_id} actualizada correctamente", "success")
+            flash(f"Orden de la cedula {cedula} actualizada correctamente", "success")
         else:
-            # Crear nueva orden
-            nuevo_id = f"ORD-{random.randint(500, 999)}"
-            fecha_ingreso_str = datetime.now().strftime('%d/%m/%Y')
+            # Validar si ya existe la cedula
+            for o in ordenes_db:
+                if o['cedula'] == cedula:
+                    flash(f"Ya existe una orden registrada con la cedula {cedula}", "danger")
+                    return redirect(url_for('admin_panel') if session.get('admin') else url_for('index'))
 
+            fecha_ingreso_str = datetime.now().strftime('%d/%m/%Y')
             nueva_orden = {
-                "id": nuevo_id,
+                "cedula": cedula,
                 "cliente": cliente,
                 "telefono": telefono,
                 "equipo": equipo,
@@ -146,7 +149,7 @@ def crear_orden():
                 "foto": foto_filename
             }
             ordenes_db.append(nueva_orden)
-            flash(f"Orden {nuevo_id} registrada con exito", "success")
+            flash(f"Orden registrada con exito para la cedula {cedula}", "success")
         
         if session.get('admin'):
             return redirect(url_for('admin_panel'))
@@ -161,8 +164,8 @@ def actualizar_masivo():
     
     try:
         for o in ordenes_db:
-            oid = o['id']
-            nuevo_estado = request.form.get(f'estado_{oid}')
+            ced = o['cedula']
+            nuevo_estado = request.form.get(f'estado_{ced}')
             if nuevo_estado:
                 if nuevo_estado == 'Reparado' and o['estado'] != 'Reparado':
                     o['fecha_reparacion'] = datetime.now().strftime('%d/%m/%Y %H:%M')
@@ -176,14 +179,14 @@ def actualizar_masivo():
         
     return redirect(url_for('admin_panel'))
 
-@app.route('/eliminar-orden/<string:orden_id>', methods=['POST'])
-def eliminar_orden(orden_id):
+@app.route('/eliminar-orden/<string:cedula>', methods=['POST'])
+def eliminar_orden(cedula):
     if not session.get('admin'):
         return redirect(url_for('login_admin'))
     
     global ordenes_db
-    ordenes_db = [o for o in ordenes_db if o['id'] != orden_id]
-    flash(f"Orden {orden_id} eliminada correctamente", "success")
+    ordenes_db = [o for o in ordenes_db if o['cedula'] != cedula]
+    flash(f"Orden de la cedula {cedula} eliminada correctamente", "success")
     return redirect(url_for('admin_panel'))
 
 @app.route('/logout', methods=['GET'])
