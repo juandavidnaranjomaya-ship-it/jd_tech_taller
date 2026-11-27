@@ -11,7 +11,7 @@ UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Base de datos simulada robusta
+# Base de datos simulada en memoria robusta
 ordenes_db = [
     {
         "id": "ORD-501",
@@ -81,7 +81,7 @@ def admin_panel():
 @app.route('/crear-orden', methods=['POST'])
 def crear_orden():
     try:
-        nuevo_id = f"ORD-{random.randint(500, 999)}"
+        orden_id = request.form.get('orden_id', '').strip()
         
         foto_filename = ""
         if 'foto' in request.files:
@@ -95,7 +95,10 @@ def crear_orden():
         telefono = request.form.get('telefono', '').strip()
         equipo = request.form.get('equipo', '').strip()
         imei = request.form.get('imei', 'N/A').strip()
-        problema = request.form.get('problema', 'Cambio de pantalla').strip()
+        
+        problema_sel = request.form.get('problema', '').strip()
+        problema_otro = request.form.get('problema_otro', '').strip()
+        problema = problema_otro if problema_sel == 'Otro' and problema_otro else problema_sel
         
         costo_rep_str = request.form.get('costo_rep', '0').strip()
         costo_total_str = request.form.get('costo_total', '0').strip()
@@ -104,33 +107,52 @@ def crear_orden():
         costo_total = int(costo_total_str) if costo_total_str.isdigit() else 0
         ganancia = costo_total - costo_rep
 
-        fecha_ingreso_str = datetime.now().strftime('%d/%m/%Y')
+        # Si viene un ID existente, se actualiza la orden desde el panel superior (Autorrelleno/Edición)
+        if orden_id:
+            for o in ordenes_db:
+                if o['id'] == orden_id:
+                    o['cliente'] = cliente
+                    o['telefono'] = telefono
+                    o['equipo'] = equipo
+                    if imei and imei != 'N/A':
+                        o['imei'] = imei
+                    o['problema'] = problema
+                    o['costo_rep'] = str(costo_rep)
+                    o['costo_total'] = str(costo_total)
+                    o['ganancia'] = ganancia
+                    if foto_filename:
+                        o['foto'] = foto_filename
+            flash(f"Orden {orden_id} actualizada correctamente", "success")
+        else:
+            # Crear nueva orden
+            nuevo_id = f"ORD-{random.randint(500, 999)}"
+            fecha_ingreso_str = datetime.now().strftime('%d/%m/%Y')
 
-        nueva_orden = {
-            "id": nuevo_id,
-            "cliente": cliente,
-            "telefono": telefono,
-            "equipo": equipo,
-            "imei": imei if imei else 'N/A',
-            "problema": problema,
-            "costo_rep": str(costo_rep),
-            "costo_total": str(costo_total),
-            "ganancia": ganancia,
-            "estado": "Recibido",
-            "fecha_ingreso": fecha_ingreso_str,
-            "fecha_reparacion": "Pendiente",
-            "fecha_rep_obj": None,
-            "dias_restantes": '-',
-            "foto": foto_filename
-        }
-        ordenes_db.append(nueva_orden)
-        flash(f"Orden {nuevo_id} registrada con exito", "success")
+            nueva_orden = {
+                "id": nuevo_id,
+                "cliente": cliente,
+                "telefono": telefono,
+                "equipo": equipo,
+                "imei": imei if imei else 'N/A',
+                "problema": problema,
+                "costo_rep": str(costo_rep),
+                "costo_total": str(costo_total),
+                "ganancia": ganancia,
+                "estado": "Recibido",
+                "fecha_ingreso": fecha_ingreso_str,
+                "fecha_reparacion": "Pendiente",
+                "fecha_rep_obj": None,
+                "dias_restantes": '-',
+                "foto": foto_filename
+            }
+            ordenes_db.append(nueva_orden)
+            flash(f"Orden {nuevo_id} registrada con exito", "success")
         
         if session.get('admin'):
             return redirect(url_for('admin_panel'))
         return redirect(url_for('index'))
     except Exception as e:
-        return f"Error al registrar la orden: {e}", 500
+        return f"Error al procesar la orden: {e}", 500
 
 @app.route('/actualizar-masivo', methods=['POST'])
 def actualizar_masivo():
@@ -141,11 +163,6 @@ def actualizar_masivo():
         for o in ordenes_db:
             oid = o['id']
             nuevo_estado = request.form.get(f'estado_{oid}')
-            nuevo_cliente = request.form.get(f'cliente_{oid}')
-            nuevo_equipo = request.form.get(f'equipo_{oid}')
-            nuevo_costo_rep = request.form.get(f'costo_rep_{oid}', '0')
-            nuevo_costo_total = request.form.get(f'costo_total_{oid}', '0')
-            
             if nuevo_estado:
                 if nuevo_estado == 'Reparado' and o['estado'] != 'Reparado':
                     o['fecha_reparacion'] = datetime.now().strftime('%d/%m/%Y %H:%M')
@@ -153,18 +170,7 @@ def actualizar_masivo():
                     o['dias_restantes'] = 30
                 o['estado'] = nuevo_estado
                 
-            if nuevo_cliente:
-                o['cliente'] = nuevo_cliente
-            if nuevo_equipo:
-                o['equipo'] = nuevo_equipo
-                
-            c_rep = int(nuevo_costo_rep) if nuevo_costo_rep.isdigit() else int(o.get('costo_rep', 0))
-            c_tot = int(nuevo_costo_total) if nuevo_costo_total.isdigit() else int(o.get('costo_total', 0))
-            o['costo_rep'] = str(c_rep)
-            o['costo_total'] = str(c_tot)
-            o['ganancia'] = c_tot - c_rep
-                
-        flash("Cambios masivos guardados correctamente", "success")
+        flash("Estados actualizados correctamente", "success")
     except Exception as e:
         flash(f"Error al actualizar: {e}", "danger")
         
