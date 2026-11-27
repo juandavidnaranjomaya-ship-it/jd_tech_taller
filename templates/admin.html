@@ -3,288 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Administrador - JD TECH</title>
+    <title>JD TECH - Panel Administrador</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        function verificarFallaAdmin(select) {
-            const inputOtro = document.getElementById('problema_otro_admin');
-            if (select.value === 'Otra') {
-                inputOtro.classList.remove('hidden');
-            } else {
-                inputOtro.classList.add('hidden');
-                inputOtro.value = '';
-            }
-        }
-
-        function cargarEnFormulario(id, cliente, cedula, telefono, equipo, imei, problema, costo, precio) {
-            document.getElementById('orden_id').value = id;
-            document.getElementById('cliente').value = cliente;
-            document.getElementById('cedula').value = cedula;
-            document.getElementById('telefono').value = telefono;
-            document.getElementById('equipo').value = equipo;
-            document.getElementById('imei').value = imei;
-            
-            const select = document.getElementById('problema_select_admin');
-            const inputOtro = document.getElementById('problema_otro_admin');
-            
-            let encontrada = false;
-            for (let i = 0; i < select.options.length; i++) {
-                if (select.options[i].value === problema) {
-                    select.selectedIndex = i;
-                    encontrada = true;
-                    inputOtro.classList.add('hidden');
-                    break;
-                }
-            }
-            if (!encontrada) {
-                select.value = 'Otra';
-                inputOtro.classList.remove('hidden');
-                inputOtro.value = problema;
-            }
-
-            document.getElementById('costo').value = costo;
-            document.getElementById('precio').value = precio;
-            
-            const btn = document.getElementById('btn-submit');
-            btn.textContent = "Guardar Cambios / Foto / IMEI";
-            btn.classList.remove('bg-cyan-500', 'hover:bg-cyan-400');
-            btn.classList.add('bg-amber-500', 'hover:bg-amber-400');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function limpiarFormulario() {
-            document.getElementById('orden_id').value = '';
-            document.getElementById('cliente').value = '';
-            document.getElementById('cedula').value = '';
-            document.getElementById('telefono').value = '';
-            document.getElementById('equipo').value = '';
-            document.getElementById('imei').value = '';
-            document.getElementById('costo').value = '';
-            document.getElementById('precio').value = '';
-            document.getElementById('foto_admin').value = '';
-            const btn = document.getElementById('btn-submit');
-            btn.textContent = "Agregar Nueva Orden";
-            btn.classList.remove('bg-amber-500', 'hover:bg-amber-400');
-            btn.classList.add('bg-cyan-500', 'hover:bg-cyan-400');
-        }
-
-        function guardarTodos() {
-            const container = document.getElementById('inputs-masivos');
-            container.innerHTML = '';
-            
-            const selects = document.querySelectorAll('select[name="nuevo_estado"]');
-            selects.forEach(select => {
-                const form = select.closest('form');
-                const ordenIdInput = form.querySelector('input[name="orden_id"]');
-                if (ordenIdInput) {
-                    const ordenId = ordenIdInput.value;
-                    const estadoVal = select.value;
-                    
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'estado_' + ordenId;
-                    input.value = estadoVal;
-                    container.appendChild(input);
-                }
-            });
-            
-            document.getElementById('form-masivo-todos').submit();
-        }
-    </script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
-
-    <form id="form-masivo-todos" method="POST" class="hidden">
-        <input type="hidden" name="accion" value="actualizar_masivo">
-        <div id="inputs-masivos"></div>
-    </form>
-
-    <!-- Navbar -->
-    <nav class="bg-slate-800 border-b border-slate-700 py-4 px-6 shadow-md">
-        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
-            <div class="flex items-center gap-3">
-                <span class="text-xl font-bold tracking-wider text-cyan-400">JD TECH</span>
-                <span class="bg-cyan-500/10 text-cyan-400 text-xs px-2.5 py-1 rounded-full border border-cyan-500/20 font-medium">Panel Admin</span>
-            </div>
-            <div class="flex flex-wrap items-center gap-3">
-                <a href="/admin/exportar-excel" class="text-sm bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-lg transition shadow-md">
-                    Descargar Excel
-                </a>
-                <a href="/" class="text-sm bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg transition text-slate-200">Volver al Inicio</a>
-                <a href="/logout" class="text-sm bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 px-4 py-2 rounded-lg transition">Cerrar Sesión</a>
-            </div>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
+    
+    <!-- Barra superior de Admin -->
+    <header class="bg-slate-900 border-b border-slate-800 py-4 px-8 shadow-md flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <h1 class="text-2xl font-extrabold text-blue-400 tracking-wider">JD TECH</h1>
+            <span class="bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs px-3 py-1 rounded-full font-semibold">Panel Admin</span>
         </div>
-    </nav>
+        <div class="space-x-3">
+            <a href="/" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm transition border border-slate-700">Volver al Inicio</a>
+            <a href="/logout" class="bg-red-900/60 hover:bg-red-800 px-4 py-2 rounded-lg text-sm text-red-200 transition border border-red-700">Cerrar Sesión</a>
+        </div>
+    </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow space-y-10">
-
-        <!-- Formulario Superior -->
-        <section class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold text-cyan-400">Gestión de Equipos, Registro Fotográfico, IMEI y Costos</h2>
-                <button type="button" onclick="limpiarFormulario()" class="text-xs text-slate-400 hover:text-slate-200 underline">Limpiar Formulario</button>
+    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow space-y-8">
+        
+        <!-- Bloque superior: Gestión de equipos, IMEI, Costos y Fotos -->
+        <div class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-semibold text-cyan-400">Gestión de Equipos, Registro Fotográfico, IMEI y Costos</h2>
+                <span class="text-xs text-slate-400 cursor-pointer hover:text-white">Limpiar Formulario</span>
             </div>
-            
-            <form method="POST" enctype="multipart/form-data" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <input type="hidden" name="accion" value="guardar">
-                <input type="hidden" id="orden_id" name="orden_id" value="">
-                
-                <input type="text" id="cliente" name="cliente" placeholder="Nombre y Apellidos" required class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
-                <input type="text" id="cedula" name="cedula" placeholder="Número de Cédula" required class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
-                <input type="text" id="telefono" name="telefono" placeholder="Teléfono / WhatsApp" required class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
-                <input type="text" id="equipo" name="equipo" placeholder="Marca y Modelo (Ej. iPhone 12)" required class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
-                
-                <input type="text" id="imei" name="imei" placeholder="Número IMEI (Garantía / Seguridad)" class="bg-slate-900 border border-cyan-500/60 rounded-xl px-4 py-2.5 text-sm text-slate-100">
 
-                <select id="problema_select_admin" name="problema_select" onchange="verificarFallaAdmin(this)" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
-                    <option value="Cambio de pantalla">Cambio de pantalla</option>
-                    <option value="Pin de carga">Pin de carga</option>
-                    <option value="Batería">Cambio de batería</option>
-                    <option value="Software / Cuenta">Software / Cuenta</option>
-                    <option value="Equipo mojado">Equipo mojado</option>
-                    <option value="Otra">Otra (Escribir falla...)</option>
-                </select>
-
-                <input type="number" id="costo" name="costo" placeholder="Costo repuesto ($) (Opcional)" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
-                <input type="number" id="precio" name="precio" placeholder="Precio cliente ($) (Opcional)" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100">
-
-                <input type="text" id="problema_otro_admin" name="problema_otro" placeholder="Especifica la otra falla..." class="hidden sm:col-span-2 lg:col-span-4 bg-slate-900 border border-cyan-500/50 rounded-xl px-4 py-2.5 text-sm text-slate-100">
-
-                <!-- Registro Fotográfico Exclusivo Admin -->
-                <div class="sm:col-span-2 lg:col-span-2 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 flex flex-col justify-center">
-                    <label class="text-[11px] text-slate-400 mb-1">Registro Fotográfico de Recepción (Solo Admin):</label>
-                    <input type="file" id="foto_admin" name="foto" accept="image/*" capture="environment" class="w-full text-xs text-slate-400 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-slate-200 hover:file:bg-slate-600">
+            <form action="/crear-orden" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" name="cliente" required placeholder="Juan Naranjo" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
+                    <input type="text" name="cedula" required placeholder="1015074219" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
+                    <input type="text" name="telefono" required placeholder="313 5760462" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
+                    <input type="text" name="equipo" required placeholder="Samsung A34" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
                 </div>
-                
-                <div class="sm:col-span-2 lg:col-span-2 flex items-center">
-                    <button type="submit" id="btn-submit" class="w-full h-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition shadow-lg text-sm">
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" name="imei" placeholder="3534343332 (IMEI)" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
+                    <select name="problema" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
+                        <option value="Cambio de pantalla">Cambio de pantalla</option>
+                        <option value="Problema de carga">Problema de carga</option>
+                        <option value="Cambio de batería">Cambio de batería</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
+                    </select>
+                    <input type="text" name="costo_rep" placeholder="Costo Repuesto (Ej. 58000)" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
+                    <input type="text" name="costo_total" placeholder="Costo Total (Ej. 120000)" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl flex items-center space-x-4">
+                        <span class="text-xs text-slate-400">Registro Fotográfico de Recepción (Solo Admin):</span>
+                        <input type="file" name="foto" class="text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-cyan-400 hover:file:bg-slate-700">
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold rounded-xl shadow-lg transition">
                         Agregar Nueva Orden
                     </button>
                 </div>
             </form>
-        </section>
+        </div>
 
-        <!-- Órdenes Activas -->
-        <section class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
-            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
-                <h2 class="text-lg font-bold text-slate-100">Órdenes Activas en Taller</h2>
-                
-                <div class="flex flex-wrap items-center gap-4">
-                    <button type="button" onclick="guardarTodos()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-md">
-                        Guardar Cambios Masivos
-                    </button>
-
-                    <form method="GET" action="/admin" class="flex items-center gap-2">
-                        <label class="text-xs text-slate-400">Filtrar:</label>
-                        <select name="filtro_estado" onchange="this.form.submit()" class="bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-200">
-                            <option value="Todos" {% if filtro_estado == 'Todos' %}selected{% endif %}>Todos</option>
-                            <option value="Ingresado" {% if filtro_estado == 'Ingresado' %}selected{% endif %}>Ingresado</option>
-                            <option value="En Revisión" {% if filtro_estado == 'En Revisión' %}selected{% endif %}>En Revisión</option>
-                            <option value="Reparado" {% if filtro_estado == 'Reparado' %}selected{% endif %}>Reparado</option>
-                            <option value="Entregado" {% if filtro_estado == 'Entregado' %}selected{% endif %}>Entregado</option>
-                        </select>
-                    </form>
+        <!-- Bloque inferior: Tabla de Órdenes Activas -->
+        <div class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">Órdenes Activas en Taller</h3>
+                <div class="flex space-x-3">
+                    <button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow">Guardar Cambios Masivos</button>
+                    <select class="bg-slate-950 border border-slate-800 text-xs px-3 py-2 rounded-lg text-slate-300">
+                        <option>Todos</option>
+                        <option>Recibido</option>
+                        <option>En reparación</option>
+                    </select>
                 </div>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-slate-300">
-                    <thead class="bg-slate-900 text-xs uppercase text-slate-400 border-b border-slate-700">
-                        <tr>
-                            <th class="py-3 px-4">Cliente / Cédula</th>
-                            <th class="py-3 px-4">Equipo / IMEI</th>
-                            <th class="py-3 px-4">Fechas / Evidencia</th>
-                            <th class="py-3 px-4">Finanzas</th>
-                            <th class="py-3 px-4">Estado & Plazo</th>
-                            <th class="py-3 px-4 text-right">Acciones</th>
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-950 text-slate-400 uppercase text-xs border-b border-slate-800">
+                            <th class="p-4">Cliente / Cédula</th>
+                            <th class="p-4">Equipo / IMEI</th>
+                            <th class="p-4">Fechas / Evidencia</th>
+                            <th class="p-4">Finanzas</th>
+                            <th class="p-4">Estado & Plazo</th>
+                            <th class="p-4">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-700/60">
+                    <tbody class="divide-y divide-slate-800">
                         {% for o in ordenes %}
-                        <tr class="hover:bg-slate-750 transition">
-                            <td class="py-4 px-4">
-                                <div class="font-bold text-slate-100">{{ o.cliente }}</div>
-                                <div class="text-xs text-slate-400">CC: {{ o.cedula or 'No registrada' }}</div>
-                                <div class="text-xs text-cyan-400">{{ o.telefono }}</div>
+                        <tr class="hover:bg-slate-800/40">
+                            <td class="p-4">
+                                <div class="font-bold text-white">{{ o.cliente }}</div>
+                                <div class="text-xs text-slate-400">CC: {{ o.cedula }}</div>
+                                <div class="text-xs text-cyan-400">Tel: {{ o.telefono }}</div>
                             </td>
-                            <td class="py-4 px-4">
-                                <div class="font-medium text-slate-200">{{ o.equipo }}</div>
-                                <div class="text-xs text-amber-300 font-mono">IMEI: {{ o.imei or 'Pendiente registrar' }}</div>
-                                <div class="text-xs text-slate-400">{{ o.problema }}</div>
+                            <td class="p-4">
+                                <div class="font-semibold text-slate-200">{{ o.equipo }}</div>
+                                <div class="text-xs font-mono text-slate-400">IMEI: {{ o.imei }}</div>
+                                <div class="text-xs text-slate-400">Falla: {{ o.problema }}</div>
                             </td>
-                            <td class="py-4 px-4 text-xs">
-                                <div><span class="text-slate-500">Ing:</span> {{ o.fecha_ingreso }}</div>
-                                <div><span class="text-slate-500">Rep:</span> {{ o.fecha_reparacion or 'Pendiente' }}</div>
-                                {% if o.foto_recepcion %}
-                                <div class="mt-1">
-                                    <a href="{{ url_for('static', filename='uploads/' + o.foto_recepcion) }}" target="_blank" class="text-cyan-400 hover:underline font-semibold">[Ver Foto Recepción]</a>
-                                </div>
+                            <td class="p-4 text-xs text-slate-400">
+                                <div>ID: <span class="text-blue-400 font-mono font-bold">{{ o.id }}</span></div>
+                                {% if o.foto %}
+                                <div class="text-cyan-400 mt-1">📷 Foto adjunta</div>
                                 {% else %}
-                                <div class="text-slate-500 mt-1">Sin evidencia</div>
+                                <div class="text-slate-500 mt-1">Sin foto</div>
                                 {% endif %}
                             </td>
-                            <td class="py-4 px-4 text-xs">
-                                <div>Inv: <span class="text-rose-400">${{ "{:,}".format(o.costo) }}</span></div>
-                                <div>Cobro: <span class="text-emerald-400">${{ "{:,}".format(o.precio) }}</span></div>
-                                <div class="font-bold text-cyan-300">Ganancia: ${{ "{:,}".format(o.precio - o.costo) }}</div>
+                            <td class="p-4 text-xs">
+                                <div>Rep: <span class="text-slate-300">${{ o.costo_rep }}</span></div>
+                                <div class="font-bold text-emerald-400">Total: ${{ o.costo_total }}</div>
                             </td>
-                            <td class="py-4 px-4">
-                                <span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full mb-1
-                                    {% if o.estado == 'Ingresado' %} bg-amber-500/20 text-amber-400
-                                    {% elif o.estado == 'En Revisión' %} bg-blue-500/20 text-blue-400
-                                    {% elif o.estado == 'Reparado' %} bg-emerald-500/20 text-emerald-400
-                                    {% else %} bg-slate-700 text-slate-300 {% endif %}">
+                            <td class="p-4">
+                                <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-full text-xs font-semibold">
                                     {{ o.estado }}
                                 </span>
-                                {% if o.dias_restantes is not none and o.estado == 'Reparado' %}
-                                <div class="text-[10px] text-amber-300 font-medium">Plazo retiro: {{ o.dias_restantes }} dias hab.</div>
-                                {% endif %}
                             </td>
-                            <td class="py-4 px-4 text-right flex items-center justify-end gap-1.5">
-                                <button type="button" onclick="cargarEnFormulario('{{ o.id }}', '{{ o.cliente }}', '{{ o.cedula }}', '{{ o.telefono }}', '{{ o.equipo }}', '{{ o.imei }}', '{{ o.problema }}', '{{ o.costo }}', '{{ o.precio }}')" class="bg-slate-700 hover:bg-amber-500 hover:text-slate-950 text-xs font-medium px-2.5 py-1.5 rounded-lg transition">
-                                    Editar
-                                </button>
-
-                                <form method="POST" class="inline-flex items-center gap-1">
-                                    <input type="hidden" name="accion" value="cambiar_estado">
-                                    <input type="hidden" name="orden_id" value="{{ o.id }}">
-                                    <select name="nuevo_estado" class="bg-slate-900 border border-slate-700 text-xs rounded-lg px-2 py-1.5 text-slate-200">
-                                        <option value="Ingresado" {% if o.estado == 'Ingresado' %}selected{% endif %}>Ingresado</option>
-                                        <option value="En Revisión" {% if o.estado == 'En Revisión' %}selected{% endif %}>En Revisión</option>
-                                        <option value="Reparado" {% if o.estado == 'Reparado' %}selected{% endif %}>Reparado</option>
-                                        <option value="Entregado" {% if o.estado == 'Entregado' %}selected{% endif %}>Entregado</option>
-                                    </select>
-                                    <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-xs font-bold px-2.5 py-1.5 rounded-lg transition">
-                                        OK
-                                    </button>
-                                </form>
-
-                                <form method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar esta orden?');" class="inline">
-                                    <input type="hidden" name="accion" value="eliminar">
-                                    <input type="hidden" name="orden_id" value="{{ o.id }}">
-                                    <button type="submit" class="bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white text-xs font-bold px-2 py-1.5 rounded-lg transition">
-                                        Eliminar
-                                    </button>
-                                </form>
+                            <td class="p-4 text-xs">
+                                <button class="text-indigo-400 hover:text-indigo-300 font-medium">Editar</button>
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="6" class="text-center py-6 text-slate-500">No hay órdenes activas en este filtro.</td>
+                            <td colspan="6" class="p-8 text-center text-slate-500">No hay órdenes activas en este filtro.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-        </section>
-
+        </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="text-center py-6 text-xs text-slate-500 border-t border-slate-800">
-        &copy; 2026 JD TECH - Panel Administrativo Seguro.
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+        &copy; 2026 JD TECH - Panel Administrativo Profesional
     </footer>
-
 </body>
 </html>
