@@ -1,18 +1,32 @@
 import os
+import random
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from supabase import create_client, Client
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "jd_tech_secreto_seguro_2026")
+app.secret_key = "jd_tech_secreto_seguro_2026"
 
-# Conexión con Supabase mediante HTTP estándar (Puerto 443)
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+# Configuración para subida de fotos (evita errores si no existe la carpeta)
+UPLOAD_FOLDER = 'static/uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-if not SUPABASE_URL or not SUPABASE_KEY:
-    raise ValueError("Faltan las variables de entorno SUPABASE_URL o SUPABASE_KEY en Render.")
-
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# Base de datos simulada en memoria con todos los campos detallados
+ordenes_db = [
+    {
+        "id": "ORD-501",
+        "cliente": "Juan Naranjo",
+        "cedula": "1015074219",
+        "telefono": "313 5760462",
+        "equipo": "Samsung A34",
+        "imei": "3534343332",
+        "problema": "Cambio de pantalla",
+        "costo_rep": "58000",
+        "costo_total": "120000",
+        "estado": "Recibido",
+        "foto": ""
+    }
+]
 
 @app.route('/')
 def index():
@@ -23,14 +37,13 @@ def estado():
     ordenes = []
     error = None
     if request.method == 'POST':
-        busqueda = request.form.get('busqueda', '').strip()
-        try:
-            response = supabase.table("ordenes").select("*").ilike("id", f"%{busqueda}%").execute()
-            ordenes = response.data
-            if not ordenes:
-                error = "No se encontró ninguna orden con ese criterio."
-        except Exception as e:
-            error = f"Error al consultar la base de datos: {e}"
+        busqueda = request.form.get('busqueda', '').strip().lower()
+        ordenes = [
+            o for o in ordenes_db 
+            if busqueda in o['cedula'].lower() or busqueda in o['cliente'].lower() or busqueda in o['id'].lower()
+        ]
+        if not ordenes:
+            error = "No se encontró ninguna orden con ese número de cédula, nombre o código."
             
     return render_template('estado.html', ordenes=ordenes, error=error)
 
@@ -38,8 +51,6 @@ def estado():
 def login_admin():
     if request.method == 'POST':
         password = request.form.get('password')
-        
-        # Validación estricta únicamente con la contraseña (301023)
         if password == "301023":
             session['admin'] = True
             return redirect(url_for('admin_panel'))
@@ -52,33 +63,43 @@ def login_admin():
 def admin_panel():
     if not session.get('admin'):
         return redirect(url_for('login_admin'))
-    
-    ordenes = []
-    try:
-        response = supabase.table("ordenes").select("*").execute()
-        ordenes = response.data
-    except Exception as e:
-        flash(f"Error cargando las órdenes: {e}", "danger")
-        
-    return render_template('admin.html', ordenes=ordenes)
+    return render_template('admin.html', ordenes=ordenes_db)
 
 @app.route('/crear-orden', methods=['POST'])
 def crear_orden():
     try:
+        nuevo_id = f"ORD-{random.randint(500, 999)}"
+        
+        # Manejo de archivo de imagen si se adjunta
+        foto_filename = ""
+        if 'foto' in request.files:
+            file = request.files['foto']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                foto_filename = filename
+
         nueva_orden = {
+            "id": nuevo_id,
             "cliente": request.form.get('cliente'),
+            "cedula": request.form.get('cedula'),
+            "telefono": request.form.get('telefono'),
             "equipo": request.form.get('equipo'),
+            "imei": request.form.get('imei', 'N/A'),
             "problema": request.form.get('problema'),
-            "estado": "Recibido"
+            "costo_rep": request.form.get('costo_rep', '0'),
+            "costo_total": request.form.get('costo_total', '0'),
+            "estado": "Recibido",
+            "foto": foto_filename
         }
-        supabase.table("ordenes").insert(nueva_orden).execute()
-        flash("¡Orden registrada con éxito!", "success")
+        ordenes_db.append(nueva_orden)
+        flash(f"¡Orden {nuevo_id} registrada con éxito!", "success")
         
         if session.get('admin'):
             return redirect(url_for('admin_panel'))
         return redirect(url_for('index'))
     except Exception as e:
-        return f"Error al registrar la orden en la base de datos: {e}", 500
+        return f"Error al registrar la orden: {e}", 500
 
 @app.route('/logout', methods=['GET'])
 def logout():
