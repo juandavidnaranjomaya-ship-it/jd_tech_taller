@@ -2,42 +2,53 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Acceso Administrador - JD TECH</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #050b18; color: #ffffff; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .card { background-color: #0b192c; border: 1px solid #1e3a8a; border-radius: 8px; padding: 30px; width: 100%; max-width: 400px; box-shadow: 0 4px 15px rgba(0, 180, 216, 0.2); text-align: center; }
-        h2 { color: #00b4d8; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; margin-bottom: 5px; color: #90e0ef; }
-        input { width: 100%; padding: 10px; background: #050b18; border: 1px solid #1e3a8a; color: white; border-radius: 4px; box-sizing: border-box; }
-        button { background-color: #00b4d8; color: #050b18; padding: 12px; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; margin-top: 10px; }
-        button:hover { background-color: #90e0ef; }
-        .alert { padding: 10px; background-color: #ef4444; color: white; margin-bottom: 15px; border-radius: 4px; font-size: 0.9em; }
-        .back { margin-top: 15px; display: block; color: #00b4d8; text-decoration: none; font-size: 0.9em; }
-        .back:hover { text-decoration: underline; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JD TECH - Panel de Administrador</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="card">
-        <h2>Acceso Restringido</h2>
-        <p style="color: #90e0ef; font-size: 0.9em; margin-bottom: 20px;">JD TECH - Panel de Gestión</p>
-        
+<body class="bg-slate-900 text-slate-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md p-8 bg-slate-800 rounded-xl shadow-2xl border border-slate-700">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-blue-400 tracking-wider">JD TECH</h1>
+            <p class="text-sm text-slate-400 mt-2">Acceso al Panel de Administración</p>
+        </div>
+
+        <!-- Bloque para mostrar mensajes de error o éxito (Flash) -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert">{{ message }}</div>
+                    <div class="mb-4 p-3 rounded-lg text-sm bg-red-500/20 border border-red-500 text-red-300">
+                        {{ message }}
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        <form action="/login-admin" method="POST">
-            <div class="form-group">
-                <label>Contraseña de Administrador:</label>
-                <input type="password" name="password" required placeholder="Ingrese su clave">
+        <!-- Formulario configurado con método POST -->
+        <form action="/login-admin" method="POST" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Usuario</label>
+                <input type="text" name="usuario" required 
+                    class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-blue-500 text-slate-100 placeholder-slate-500"
+                    placeholder="Ej. admin">
             </div>
-            <button type="submit">Ingresar al Panel</button>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Contraseña</label>
+                <input type="password" name="password" required 
+                    class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-blue-500 text-slate-100 placeholder-slate-500"
+                    placeholder="••••••">
+            </div>
+
+            <button type="submit" 
+                class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg shadow-lg transition duration-200">
+                Ingresar al Sistema
+            </button>
         </form>
-        <a href="/" class="back">← Volver al sitio principal</a>
+
+        <div class="mt-6 text-center">
+            <a href="/" class="text-sm text-slate-400 hover:text-blue-400 transition">← Volver al inicio</a>
+        </div>
     </div>
 </body>
 </html>
