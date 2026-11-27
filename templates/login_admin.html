@@ -13,7 +13,7 @@
             <p class="text-sm text-slate-400 mt-2">Acceso al Panel de Administración</p>
         </div>
 
-        <!-- Mensajes Flash de alerta o error -->
+        <!-- Mensajes Flash -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -24,7 +24,7 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Formulario configurado con método POST hacia /login-admin -->
+        <!-- Formulario (Únicamente Contraseña) -->
         <form action="/login-admin" method="POST" class="space-y-6">
             <div>
                 <label class="block text-sm font-medium text-slate-300 mb-2 text-center">Contraseña de Administrador</label>
