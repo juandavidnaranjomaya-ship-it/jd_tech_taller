@@ -3,43 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JD TECH - Acceso Restringido</title>
+    <title>JD TECH - Panel Administrador</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 flex items-center justify-center min-h-screen font-sans">
-    
-    <div class="w-full max-w-md p-8 bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 text-center space-y-6">
-        <div>
-            <h1 class="text-3xl font-extrabold text-cyan-400 tracking-wider">JD TECH</h1>
-            <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest">Panel de Gestion</p>
+<body class="bg-[#0b0f19] text-slate-100 flex items-center justify-center min-h-screen font-sans">
+    <div class="w-full max-w-md p-8 bg-[#111827] rounded-2xl shadow-2xl border border-slate-800">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-extrabold text-white tracking-wider">JD TECH</h1>
+            <p class="text-xs text-slate-400 mt-2">Acceso Exclusivo al Panel Administrativo</p>
         </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="p-3 rounded-xl text-xs bg-red-500/20 border border-red-500 text-red-300">
+                    <div class="mb-4 p-3 rounded-xl text-xs bg-red-500/20 border border-red-500 text-red-300 text-center">
                         {{ message }}
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        <form action="/login-admin" method="POST" class="space-y-4 text-left">
+        <form action="/login-admin" method="POST" class="space-y-6">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contrasena de Administrador</label>
+                <label class="block text-xs font-medium text-slate-400 mb-2 text-center">Contrasena de Administrador</label>
                 <input type="password" name="password" required autofocus
-                    class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-400 text-slate-100 text-center tracking-widest text-lg"
+                    class="w-full px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-slate-100 text-center tracking-widest text-base"
                     placeholder="••••••">
             </div>
 
             <button type="submit" 
-                class="w-full py-3.5 px-4 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-extrabold rounded-xl shadow-lg transition duration-200 text-sm uppercase tracking-wider">
-                Ingresar al Panel
+                class="w-full py-3.5 px-4 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold rounded-xl shadow-lg transition duration-200 text-xs uppercase tracking-wider">
+                Ingresar al Sistema
             </button>
         </form>
 
-        <div class="pt-2">
-            <a href="/" class="text-xs text-slate-400 hover:text-cyan-400 transition">&larr; Volver al sitio principal</a>
+        <div class="mt-6 text-center">
+            <a href="/" class="text-xs text-slate-400 hover:text-white transition">Volver al inicio</a>
         </div>
     </div>
 </body>
