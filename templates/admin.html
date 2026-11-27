@@ -5,10 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JD TECH - Panel Administrador</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function cargarParaEditar(id, cliente, telefono, equipo, imei, problema, costo_rep, costo_total) {
+            document.getElementById('input_orden_id').value = id;
+            document.getElementById('input_cliente').value = cliente;
+            document.getElementById('input_telefono').value = telefono;
+            document.getElementById('input_equipo').value = equipo;
+            document.getElementById('input_imei').value = imei;
+            document.getElementById('input_costo_rep').value = costo_rep;
+            document.getElementById('input_costo_total').value = costo_total;
+            
+            const selectProblema = document.getElementById('select_problema_admin');
+            let encontrado = false;
+            for (let i = 0; i < selectProblema.options.length; i++) {
+                if (selectProblema.options[i].value === problema) {
+                    selectProblema.selectedIndex = i;
+                    encontrado = true;
+                    break;
+                }
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function limpiarFormularioAdmin() {
+            document.getElementById('input_orden_id').value = '';
+            document.getElementById('form_gestion').reset();
+        }
+    </script>
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col justify-between font-sans">
     
-    <!-- Barra Superior Administrador -->
     <header class="bg-[#111827] border-b border-slate-800 py-4 px-8 shadow-lg flex justify-between items-center">
         <div class="flex items-center space-x-3">
             <h1 class="text-xl font-bold text-white tracking-wider">JD TECH</h1>
@@ -33,31 +59,34 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Formulario Superior: Gestión de Equipos, Registro Fotográfico, IMEI y Costos -->
+        <!-- Formulario Superior de Gestión y Autorrelleno para Edición -->
         <div class="bg-[#111827] border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
             <div class="flex justify-between items-center">
                 <h2 class="text-base font-bold text-white">Gestion de Equipos, Registro Fotografico, IMEI y Costos</h2>
-                <span class="text-xs text-slate-400 hover:text-white cursor-pointer">Limpiar Formulario</span>
+                <span onclick="limpiarFormularioAdmin()" class="text-xs text-slate-400 hover:text-white cursor-pointer">Limpiar Formulario</span>
             </div>
 
-            <form action="/crear-orden" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <form id="form_gestion" action="/crear-orden" method="POST" enctype="multipart/form-data" class="space-y-4">
+                <input type="hidden" name="orden_id" id="input_orden_id">
+                
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" name="cliente" required placeholder="Nombre y Apellidos" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
-                    <input type="text" name="telefono" required placeholder="Telefono / WhatsApp" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
-                    <input type="text" name="equipo" required placeholder="Marca y Modelo (Ej. iPhone 12)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
-                    <select name="problema" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
+                    <input type="text" id="input_cliente" name="cliente" required placeholder="Nombre y Apellidos" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
+                    <input type="text" id="input_telefono" name="telefono" required placeholder="Telefono / WhatsApp" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
+                    <input type="text" id="input_equipo" name="equipo" required placeholder="Marca y Modelo (Ej. iPhone 12)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
+                    <select id="select_problema_admin" name="problema" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
                         <option value="Cambio de pantalla">Cambio de pantalla</option>
                         <option value="Pin de carga">Pin de carga</option>
                         <option value="Cambio de bateria">Cambio de bateria</option>
                         <option value="Dano por agua">Dano por agua</option>
+                        <option value="Diagnostico general">Diagnostico general</option>
                         <option value="Otro motivo">Otro motivo</option>
                     </select>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" name="imei" placeholder="Numero IMEI (Garantia / Seguridad)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
-                    <input type="text" name="costo_rep" placeholder="Costo repuesto ($) (Opcional)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
-                    <input type="text" name="costo_total" placeholder="Precio cliente ($) (Opcional)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
+                    <input type="text" id="input_imei" name="imei" placeholder="Numero IMEI (Garantia / Seguridad)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
+                    <input type="text" id="input_costo_rep" name="costo_rep" placeholder="Costo repuesto ($) (Opcional)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
+                    <input type="text" id="input_costo_total" name="costo_total" placeholder="Precio cliente ($) (Opcional)" class="px-4 py-3 bg-[#0b0f19] border border-slate-800 rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:outline-none">
                     
                     <div class="bg-[#0b0f19] border border-slate-800 px-3 py-2 rounded-xl flex items-center space-x-2">
                         <span class="text-[11px] text-slate-400">Foto:</span>
@@ -66,12 +95,12 @@
                 </div>
 
                 <button type="submit" class="w-full py-3.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold rounded-xl shadow transition text-xs tracking-wider uppercase">
-                    Agregar Nueva Orden
+                    Guardar / Agregar Orden
                 </button>
             </form>
         </div>
 
-        <!-- Bloque Inferior: Órdenes Activas en Taller con Edición Masiva y Ganancias -->
+        <!-- Tabla de Órdenes Activas -->
         <form action="/actualizar-masivo" method="POST" class="bg-[#111827] border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
             <div class="flex justify-between items-center">
                 <h3 class="text-base font-bold text-white">Ordenes Activas en Taller</h3>
@@ -79,12 +108,6 @@
                     <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow transition">
                         Actualizar Todos (Guardar cambios)
                     </button>
-                    <div class="flex items-center space-x-2 text-xs text-slate-400">
-                        <span>Filtrar:</span>
-                        <select class="bg-[#0b0f19] border border-slate-800 px-3 py-1.5 rounded-lg text-slate-300">
-                            <option>Todos</option>
-                        </select>
-                    </div>
                 </div>
             </div>
 
@@ -92,11 +115,11 @@
                 <table class="w-full text-left border-collapse text-xs">
                     <thead>
                         <tr class="bg-[#0b0f19] text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
-                            <th class="p-4">CLIENTE / TEL</th>
-                            <th class="p-4">EQUIPO / FALLA</th>
-                            <th class="p-4">FECHAS</th>
+                            <th class="p-4">CLIENTE / CÉDULA</th>
+                            <th class="p-4">EQUIPO / IMEI</th>
+                            <th class="p-4">FECHAS / EVIDENCIA</th>
                             <th class="p-4">FINANZAS (SOLO ADMIN)</th>
-                            <th class="p-4">ESTADO & GARANTIA</th>
+                            <th class="p-4">ESTADO & GARANTÍA</th>
                             <th class="p-4 text-center">ACCIONES</th>
                         </tr>
                     </thead>
@@ -104,31 +127,30 @@
                         {% for o in ordenes %}
                         <tr class="hover:bg-slate-800/30">
                             <td class="p-4 space-y-1">
-                                <input type="text" name="cliente_{{ o.id }}" value="{{ o.cliente }}" class="bg-[#0b0f19] border border-slate-800 px-2.5 py-1 rounded-lg text-xs text-white font-bold w-full">
+                                <div class="font-bold text-white">{{ o.cliente }}</div>
                                 <div class="text-slate-400">Tel: {{ o.telefono }}</div>
                                 <div class="text-cyan-400 font-mono">ID: {{ o.id }}</div>
                             </td>
                             <td class="p-4 space-y-1">
-                                <input type="text" name="equipo_{{ o.id }}" value="{{ o.equipo }}" class="bg-[#0b0f19] border border-slate-800 px-2.5 py-1 rounded-lg text-xs text-slate-200 w-full">
+                                <div class="font-semibold text-slate-200">{{ o.equipo }}</div>
                                 <div class="text-slate-400">Falla: {{ o.problema }}</div>
                                 <div class="text-cyan-400 font-mono text-[11px]">IMEI: {{ o.imei }}</div>
                             </td>
                             <td class="p-4 text-slate-400 space-y-1">
                                 <div>Ing: {{ o.fecha_ingreso }}</div>
                                 <div>Rep: {{ o.fecha_reparacion }}</div>
-                                {% if o.foto %}
-                                <div class="text-cyan-400 font-medium">Foto adjunta</div>
-                                {% endif %}
+                                <!-- Espacio fijo para foto presente o ausente -->
+                                <div class="pt-1">
+                                    {% if o.foto %}
+                                    <span class="text-cyan-400 font-medium">Foto adjunta</span>
+                                    {% else %}
+                                    <span class="text-slate-600 italic">Sin foto</span>
+                                    {% endif %}
+                                </div>
                             </td>
                             <td class="p-4 space-y-1">
-                                <div class="flex items-center space-x-1">
-                                    <span class="text-slate-400">Inv: $</span>
-                                    <input type="text" name="costo_rep_{{ o.id }}" value="{{ o.costo_rep }}" class="bg-[#0b0f19] border border-slate-800 px-2 py-0.5 rounded text-slate-300 w-20">
-                                </div>
-                                <div class="flex items-center space-x-1">
-                                    <span class="text-slate-400">Cob: $</span>
-                                    <input type="text" name="costo_total_{{ o.id }}" value="{{ o.costo_total }}" class="bg-[#0b0f19] border border-slate-800 px-2 py-0.5 rounded text-emerald-400 font-bold w-20">
-                                </div>
+                                <div class="text-slate-300">Inv: ${{ o.costo_rep }}</div>
+                                <div class="text-emerald-400 font-bold">Cob: ${{ o.costo_total }}</div>
                                 <div class="text-cyan-300 font-bold pt-0.5">
                                     Ganancia: ${{ "{:,}".format(o.ganancia) }}
                                 </div>
@@ -146,7 +168,10 @@
                                 </div>
                                 {% endif %}
                             </td>
-                            <td class="p-4 text-center">
+                            <td class="p-4 text-center space-x-2">
+                                <button type="button" onclick="cargarParaEditar('{{ o.id }}', '{{ o.cliente }}', '{{ o.telefono }}', '{{ o.equipo }}', '{{ o.imei }}', '{{ o.problema }}', '{{ o.costo_rep }}', '{{ o.costo_total }}')" class="px-3 py-1.5 bg-indigo-950 hover:bg-indigo-900 text-indigo-300 rounded-lg font-semibold border border-indigo-900 transition">
+                                    Editar
+                                </button>
                                 <button type="submit" formaction="/eliminar-orden/{{ o.id }}" class="px-3 py-1.5 bg-red-950 hover:bg-red-900 text-red-300 rounded-lg font-semibold border border-red-900 transition">
                                     Eliminar
                                 </button>
