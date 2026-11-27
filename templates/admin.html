@@ -6,143 +6,135 @@
     <title>JD TECH - Panel Administrador</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
     
-    <!-- Header Admin -->
-    <header class="bg-slate-900 border-b border-slate-800 py-4 px-8 shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
-        <div class="flex items-center space-x-3">
-            <h1 class="text-2xl font-extrabold text-cyan-400 tracking-wider">JD TECH</h1>
-            <span class="bg-cyan-950 text-cyan-400 border border-cyan-800 text-xs px-3 py-1 rounded-md font-semibold">Panel Admin</span>
+    <header class="bg-slate-900 border-b border-slate-800 py-4 px-8 shadow-md flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <h1 class="text-2xl font-extrabold text-blue-400 tracking-wider">JD TECH</h1>
+            <span class="bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs px-3 py-1 rounded-full font-semibold">Panel Admin</span>
         </div>
-        <div class="flex items-center space-x-3">
-            <a href="/descargar-excel" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow">Descargar Excel</a>
-            <a href="/" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-xs font-semibold transition border border-slate-700">Volver al Inicio</a>
-            <a href="/logout" class="bg-red-950 hover:bg-red-900 px-4 py-2 rounded-xl text-xs font-semibold text-red-200 transition border border-red-800">Cerrar Sesion</a>
+        <div class="space-x-3">
+            <a href="/" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm transition border border-slate-700">Volver al Inicio</a>
+            <a href="/logout" class="bg-red-900/60 hover:bg-red-800 px-4 py-2 rounded-lg text-sm text-red-200 transition border border-red-700">Cerrar Sesión</a>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-6 py-8 w-full flex-grow space-y-8">
+    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow space-y-8">
         
-        <!-- Bloque de Registro y Gestión -->
-        <div class="bg-slate-900 p-6 rounded-2xl shadow-2xl border border-slate-800">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="p-4 rounded-xl text-sm bg-cyan-500/20 border border-cyan-500 text-cyan-300 text-center shadow-lg">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Formulario Superior de Admin (Con IMEI y Costos) -->
+        <div class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-base font-bold text-cyan-400 uppercase tracking-wider">Gestion de Equipos, Registro Fotografico, IMEI y Costos</h2>
+                <h2 class="text-lg font-semibold text-cyan-400">Gestión de Equipos, Registro Fotográfico, IMEI y Costos</h2>
             </div>
 
-            <form action="/crear-orden" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <form action="/crear-orden" method="POST" enctype="multipart/form-data" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" name="cliente" required placeholder="Nombre y Apellidos" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100">
-                    <input type="text" name="cedula" required placeholder="Cedula" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100">
-                    <input type="text" name="telefono" required placeholder="Telefono / WhatsApp" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100">
-                    <input type="text" name="equipo" required placeholder="Marca y Modelo (Ej. Samsung A34)" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100">
+                    <input type="text" name="cliente" required placeholder="Nombre del Cliente" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
+                    <input type="text" name="cedula" required placeholder="Cédula" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
+                    <input type="text" name="telefono" required placeholder="Teléfono" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
+                    <input type="text" name="equipo" required placeholder="Dispositivo" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" name="imei" placeholder="IMEI / Serial (Solo Admin)" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-cyan-400">
-                    <select name="problema" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100">
+                    <input type="text" name="imei" placeholder="IMEI del Dispositivo" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
+                    <select name="problema" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
                         <option value="Cambio de pantalla">Cambio de pantalla</option>
                         <option value="Problema de carga">Problema de carga</option>
-                        <option value="Cambio de bateria">Cambio de bateria</option>
-                        <option value="Mantenimiento general">Mantenimiento general</option>
-                        <option value="Otro (Especificar en taller)">Otro (Especificar en taller)</option>
+                        <option value="Cambio de bateria">Cambio de batería</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
                     </select>
-                    <input type="text" name="costo_rep" placeholder="Costo Repuesto (Ej. 58000)" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100">
-                    <input type="text" name="costo_total" placeholder="Precio Cliente (Ej. 120000)" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100">
+                    <input type="text" name="costo_rep" placeholder="Costo Repuesto" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
+                    <input type="text" name="costo_total" placeholder="Costo Total" class="px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100">
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center pt-2">
-                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
-                        <span class="text-xs text-slate-400">Registro Fotografico (Solo Admin):</span>
-                        <input type="file" name="foto" class="text-xs text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-cyan-400">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl flex items-center space-x-4">
+                        <span class="text-xs text-slate-400">Foto de Recepción:</span>
+                        <input type="file" name="foto" class="text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-cyan-400">
                     </div>
-                    <button type="submit" class="w-full py-3.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-extrabold rounded-xl shadow-lg transition text-xs uppercase tracking-wider">
+                    <button type="submit" class="w-full py-3.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold rounded-xl shadow-lg transition">
                         Agregar Nueva Orden
                     </button>
                 </div>
             </form>
         </div>
 
-        <!-- Tabla de Órdenes Activas -->
-        <div class="bg-slate-900 p-6 rounded-2xl shadow-2xl border border-slate-800 space-y-5">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <h3 class="text-xl font-bold text-white">Ordenes Activas en Taller</h3>
-                <div class="flex items-center space-x-3">
-                    <span class="text-xs text-slate-400">Filtrar:</span>
-                    <select onchange="window.location.href='/admin?filtro=' + this.value" class="bg-slate-950 border border-slate-800 text-xs px-4 py-2 rounded-xl text-slate-200">
-                        <option value="Todos" {% if filtro_actual == 'Todos' %}selected{% endif %}>Todos</option>
-                        <option value="Ingresado" {% if filtro_actual == 'Ingresado' %}selected{% endif %}>Ingresado</option>
-                        <option value="En revision" {% if filtro_actual == 'En revision' %}selected{% endif %}>En revision</option>
-                        <option value="Reparado" {% if filtro_actual == 'Reparado' %}selected{% endif %}>Reparado</option>
-                        <option value="Entregado" {% if filtro_actual == 'Entregado' %}selected{% endif %}>Entregado</option>
-                    </select>
-                </div>
+        <!-- Tabla de Órdenes Activas con Actualización Masiva y Edición -->
+        <form action="/actualizar-masivo" method="POST" class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">Órdenes Activas en Taller</h3>
+                <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow transition">
+                    Guardar Cambios Masivos (1 Clic)
+                </button>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-xs">
+                <table class="w-full text-left border-collapse text-sm">
                     <thead>
-                        <tr class="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
-                            <th class="p-4">Cliente / Cedula</th>
+                        <tr class="bg-slate-950 text-slate-400 uppercase text-xs border-b border-slate-800">
+                            <th class="p-4">Cliente / Cédula</th>
                             <th class="p-4">Equipo / IMEI</th>
-                            <th class="p-4">Fechas / Evidencia</th>
-                            <th class="p-4">Finanzas (Solo Admin)</th>
-                            <th class="p-4">Estado & Garantia</th>
+                            <th class="p-4">Estado & Plazo (30 Días)</th>
+                            <th class="p-4">Finanzas</th>
                             <th class="p-4">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-800">
                         {% for o in ordenes %}
                         <tr class="hover:bg-slate-800/40">
-                            <form action="/actualizar-orden/{{ o.id }}" method="POST">
-                                <td class="p-4 align-top">
-                                    <div class="font-bold text-white text-sm">{{ o.cliente }}</div>
-                                    <div class="text-slate-400">CC: {{ o.cedula }}</div>
-                                    <div class="text-cyan-400">Tel: {{ o.telefono }}</div>
-                                </td>
-                                <td class="p-4 align-top">
-                                    <div class="font-semibold text-slate-200">{{ o.equipo }}</div>
-                                    <div class="font-mono text-cyan-400">IMEI: {{ o.imei }}</div>
-                                    <div class="text-slate-400">Falla: {{ o.problema }}</div>
-                                </td>
-                                <td class="p-4 align-top text-slate-400">
-                                    <div>ID: <span class="text-cyan-400 font-mono font-bold">{{ o.id }}</span></div>
-                                    <div>Ingreso: {{ o.fecha }}</div>
-                                    {% if o.foto %}
-                                    <div class="text-cyan-400 mt-1 font-semibold">Foto adjunta</div>
-                                    {% endif %}
-                                </td>
-                                <td class="p-4 align-top space-y-1">
-                                    <div>Inv: <input type="text" name="costo_rep" value="{{ o.costo_rep }}" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-slate-200"></div>
-                                    <div>Cobra: <input type="text" name="costo_total" value="{{ o.costo_total }}" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-emerald-400 font-bold"></div>
-                                </td>
-                                <td class="p-4 align-top space-y-2">
-                                    <select name="estado" class="bg-slate-950 border border-slate-800 text-xs px-3 py-1.5 rounded-lg text-slate-200 font-semibold">
-                                        <option value="Ingresado" {% if o.estado == 'Ingresado' %}selected{% endif %}>Ingresado</option>
-                                        <option value="En revision" {% if o.estado == 'En revision' %}selected{% endif %}>En revision</option>
-                                        <option value="Reparado" {% if o.estado == 'Reparado' %}selected{% endif %}>Reparado</option>
-                                        <option value="Entregado" {% if o.estado == 'Entregado' %}selected{% endif %}>Entregado</option>
-                                    </select>
-                                    {% if o.estado == 'Reparado' %}
-                                    <div class="text-[10px] text-emerald-400 font-medium">Garantia: 30 dias ing.</div>
-                                    {% endif %}
-                                </td>
-                                <td class="p-4 align-top">
-                                    <button type="submit" class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition text-xs shadow">
-                                        OK
-                                    </button>
-                                </td>
-                            </form>
+                            <td class="p-4 space-y-1">
+                                <input type="text" name="cliente_{{ o.id }}" value="{{ o.cliente }}" class="bg-slate-950 border border-slate-800 px-2 py-1 rounded text-xs text-white font-bold w-full">
+                                <div class="text-xs text-slate-400">CC: {{ o.cedula }} | Tel: {{ o.telefono }}</div>
+                                <div class="text-xs text-blue-400 font-mono">ID: {{ o.id }}</div>
+                            </td>
+                            <td class="p-4 space-y-1">
+                                <input type="text" name="equipo_{{ o.id }}" value="{{ o.equipo }}" class="bg-slate-950 border border-slate-800 px-2 py-1 rounded text-xs text-slate-200 w-full">
+                                <div class="text-xs font-mono text-cyan-400">IMEI: {{ o.imei }}</div>
+                                <div class="text-xs text-slate-400">Falla: {{ o.problema }}</div>
+                            </td>
+                            <td class="p-4 space-y-2">
+                                <select name="estado_{{ o.id }}" class="bg-slate-950 border border-slate-800 text-xs px-3 py-1.5 rounded-lg text-cyan-300 font-semibold w-full">
+                                    <option value="Recibido" {% if o.estado == 'Recibido' %}selected{% endif %}>Recibido</option>
+                                    <option value="En reparacion" {% if o.estado == 'En reparacion' %}selected{% endif %}>En reparacion</option>
+                                    <option value="Reparado" {% if o.estado == 'Reparado' %}selected{% endif %}>Reparado</option>
+                                    <option value="Entregado" {% if o.estado == 'Entregado' %}selected{% endif %}>Entregado</option>
+                                </select>
+                                {% if o.estado == 'Reparado' %}
+                                <div class="text-xs text-emerald-400 font-medium">
+                                    Reparado el: {{ o.fecha_reparacion }}<br>
+                                    <span class="text-amber-400 font-bold">Quedan {{ o.dias_restantes }} días para reclamar</span>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td class="p-4 space-y-1 text-xs">
+                                <div>Rep: ${{ o.costo_rep }}</div>
+                                <input type="text" name="costo_total_{{ o.id }}" value="{{ o.costo_total }}" class="bg-slate-950 border border-slate-800 px-2 py-1 rounded text-xs text-emerald-400 font-bold w-24">
+                            </td>
+                            <td class="p-4">
+                                <button type="submit" formaction="/eliminar-orden/{{ o.id }}" class="px-3 py-1.5 bg-red-900/40 hover:bg-red-800 text-red-300 rounded-lg text-xs font-semibold border border-red-700 transition">
+                                    Eliminar
+                                </button>
+                            </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="6" class="p-8 text-center text-slate-500">No hay ordenes activas en este filtro.</td>
+                            <td colspan="5" class="p-8 text-center text-slate-500">No hay órdenes activas registradas.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-        </div>
-
+        </form>
     </main>
 
     <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
